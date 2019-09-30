@@ -2,7 +2,7 @@ import gapi from 'gapi'
 
 export default class SubscriptionStorage {
   constructor () {
-    this.apiKey = 'AIzaSyCuqaL3N6pOc2iJJFi8D93jNaUXDLq9vsM';
+    this.apiKey = process.env.GOOGLE_API_KEY;
     this.clientId = '561640955159-j0f3d4nqanifhan9uct5r3br8rreqi4u.apps.googleusercontent.com';
     this.initClient();
   };

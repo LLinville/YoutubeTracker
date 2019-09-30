@@ -1,13 +1,14 @@
 <template>
   <div class='channel-name'>
     {{channelName}}
+    <div>text</div>
   </div>
+  
 </template>
 
-<script 
 <script>
 export default {
-  name: 'SubscriptionItem',
+  name: 'subscription-item',
   data () {
     return {
       channelName: 'Welcome to Your Vue.js App'
