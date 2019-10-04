@@ -1,9 +1,11 @@
 import gapi from 'gapi'
+import { resolve } from 'path';
 
 export default class SubscriptionStorage {
   constructor () {
     this.apiKey = process.env.GOOGLE_API_KEY;
     this.clientId = '561640955159-j0f3d4nqanifhan9uct5r3br8rreqi4u.apps.googleusercontent.com';
+    this.subscribedChannels = [];
     this.initClient();
   };
 
@@ -17,49 +19,51 @@ export default class SubscriptionStorage {
     // Get API key and client ID from API Console.
     // 'scope' field specifies space-delimited list of access scopes.
     gapi.client.init({
-      'apiKey': this.apiKey,
-      'discoveryDocs': [discoveryUrl],
-      'clientId': this.clientId,
-      'scope': SCOPE
+      apiKey: this.apiKey,
+      discoveryDocs: [discoveryUrl],
+      clientId: this.clientId,
+      scope: SCOPE
     }).then(function () {
       console.log('after init');
     });
   }
 
-  getSubscribedChannels () {
+  getSubscribedChannels (results, token) {
     var rq = {
-        part: 'id,contentDetails,subscriberSnippet,snippet',
-        mine: true,
-        maxResults: 50
+      part: 'id,contentDetails,subscriberSnippet,snippet',
+      mine: true,
+      maxResults: 50
     };
     if (token) { // If we got a token from previous call
-        rq.pageToken = token; // .. attach it to the new request
+      rq.pageToken = token; // .. attach it to the new request
     }
 
-    this.subscriptionPagePromises = [];
-
     var request = gapi.client.youtube.subscriptions.list(rq);
-    
-    request.then(function(response) {
-        console.log(response.items);
-        rq.pageToken = token;
-        this.subscriptionPagePromises.push(
-          gapi.client.youtube.subscriptions.list(rq)
-            .then((response) => {
-              if(response.token){ 
-                getSubscribedChannels(response.token);
-              }
-            });
+    return request.then(function (response) {
+      console.log(response.items);
+      rq.pageToken = token;
+      results.concat(response.items);
+      if (response.token !== null) {
+        this.getSubscribedChannels(results, token);
+      } else {
+        resolve(results);
+      }
+      //   this.subscriptionPagePromises.push(
+      //     gapi.client.youtube.subscriptions.list(rq)
+      //       .then((response) => {
+      //         if (response.token) {
+      //           this.getSubscribedChannels(response.token);
+      //         }
+      //       })
 
-        );
-        var next = response.nextPageToken; // get token for next page
-        if (next) { // if has next
-            get_subscriptions(next); // recurse with the new token
-        }
-    })
+    //   );
+    //   var next = response.nextPageToken; // get token for next page
+    //   if (next) { // if has next
+    //     this.getSubscribedChannels(next); // recurse with the new token
+    //   }
+    // })
+    });
   }
-
-
 }
 
 // <script src="https://apis.google.com/js/api.js"></script>
