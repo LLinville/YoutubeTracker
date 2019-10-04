@@ -1,15 +1,18 @@
-// The Vue build version to load with the `import` command
-// (runtime-only or standalone) has been set in webpack.base.conf with an alias.
-import Vue from 'vue'
-import App from './App'
-import router from './router'
+import Vue from 'vue';
+import App from './App.vue';
+import VueGapi from 'vue-gapi';
 
-Vue.config.productionTip = false
+const apiConfig = {
+  apiKey: process.env.GOOGLE_API_KE,
+  clientId: '561640955159-j0f3d4nqanifhan9uct5r3br8rreqi4u.apps.googleusercontent.com',
+  discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest'],
+  scope: 'https://www.googleapis.com/auth/youtube.force-ssl'
+};
 
-/* eslint-disable no-new */
+// Use the plugin and pass along the configuration
+Vue.use(VueGapi, apiConfig);
+
 new Vue({
   el: '#app',
-  router,
-  components: { App },
-  template: '<App/>'
-})
+  render: h => h(App),
+});
